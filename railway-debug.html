@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Deployment Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .error { background: #f44336; color: white; padding: 15px; margin: 20px 0; border-radius: 8px; }
+        .info { background: #2196F3; color: white; padding: 15px; margin: 20px 0; border-radius: 8px; }
+        .success { background: #4caf50; color: white; padding: 15px; margin: 20px 0; border-radius: 8px; }
+        .debug-section { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .button { background: #2196F3; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; margin: 5px; }
+        .button:hover { background: #1976D2; }
+        .code { background: #333; color: #0f0; padding: 15px; border-radius: 6px; font-family: monospace; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="error">
+        <h2>🚨 Railway Deployment Issue Detected</h2>
+        <p><strong>Error:</strong> 502 Bad Gateway</p>
+        <p><strong>Cause:</strong> Your Railway deployment is not starting properly</p>
+    </div>
+
+    <div class="info">
+        <h3>🔍 Debugging Steps</h3>
+        <p>Let's diagnose what's happening with your Railway deployment:</p>
+    </div>
+
+    <div class="debug-section">
+        <h3>1. Check Railway Logs</h3>
+        <p>Go to your Railway dashboard and check the deployment logs:</p>
+        <div class="code">
+            1. Visit: https://railway.app/dashboard<br>
+            2. Click on your project<br>
+            3. Go to "Deployments" tab<br>
+            4. Click on the latest deployment<br>
+            5. Check the "Logs" section
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <h3>2. Common Issues & Solutions</h3>
+        
+        <h4>❌ Issue: InsightFace Installation Failed</h4>
+        <p><strong>Solution:</strong> Railway might be having trouble installing InsightFace</p>
+        <div class="code">
+            # Check if these are in your logs:<br>
+            "Failed to install InsightFace"<br>
+            "No module named 'insightface'"<br>
+            "Memory limit exceeded"
+        </div>
+
+        <h4>❌ Issue: Port Configuration</h4>
+        <p><strong>Solution:</strong> Make sure Railway is using the correct port</p>
+        <div class="code">
+            # Your app should bind to Railway's PORT:<br>
+            port = int(os.environ.get("PORT", 8000))<br>
+            uvicorn.run(app, host="0.0.0.0", port=port)
+        </div>
+
+        <h4>❌ Issue: File Structure</h4>
+        <p><strong>Solution:</strong> Make sure main.py is in the correct location</p>
+        <div class="code">
+            # Railway expects this structure:<br>
+            /<br>
+            ├── main.py (or api/main.py)<br>
+            ├── requirements.txt<br>
+            ├── Procfile<br>
+            └── railway.toml
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <h3>3. Quick Fix Options</h3>
+        
+        <button class="button" onclick="showFixOption1()">🔧 Fix 1: Redeploy</button>
+        <button class="button" onclick="showFixOption2()">🔧 Fix 2: Check Files</button>
+        <button class="button" onclick="showFixOption3()">🔧 Fix 3: Alternative</button>
+        
+        <div id="fixOptions" style="margin-top: 20px;"></div>
+    </div>
+
+    <div class="debug-section">
+        <h3>4. Test Alternative API</h3>
+        <p>While fixing Railway, you can test with a local server:</p>
+        <div class="code">
+            cd api<br>
+            python main.py<br>
+            # Then use: http://localhost:8000
+        </div>
+        <button class="button" onclick="testLocal()">🧪 Test Local API</button>
+        <div id="localTest"></div>
+    </div>
+
+    <script>
+        function showFixOption1() {
+            document.getElementById('fixOptions').innerHTML = `
+                <div class="info">
+                    <h4>🔧 Fix Option 1: Force Redeploy</h4>
+                    <p>1. Go to Railway dashboard</p>
+                    <p>2. Click "Redeploy" on your latest deployment</p>
+                    <p>3. Wait for deployment to complete</p>
+                    <p>4. Check logs for any errors</p>
+                </div>
+            `;
+        }
+
+        function showFixOption2() {
+            document.getElementById('fixOptions').innerHTML = `
+                <div class="info">
+                    <h4>🔧 Fix Option 2: Check File Structure</h4>
+                    <p>Make sure these files exist in your repository:</p>
+                    <div class="code">
+                        ✅ main.py (in root or api/ folder)<br>
+                        ✅ requirements.txt<br>
+                        ✅ Procfile<br>
+                        ✅ railway.toml<br>
+                        ✅ embeddings_db.json
+                    </div>
+                </div>
+            `;
+        }
+
+        function showFixOption3() {
+            document.getElementById('fixOptions').innerHTML = `
+                <div class="info">
+                    <h4>🔧 Fix Option 3: Use Alternative Deployment</h4>
+                    <p>If Railway continues to fail, try:</p>
+                    <p>1. <strong>Render.com</strong> - Free alternative</p>
+                    <p>2. <strong>Heroku</strong> - Reliable but paid</p>
+                    <p>3. <strong>Local development</strong> - Run on your machine</p>
+                </div>
+            `;
+        }
+
+        async function testLocal() {
+            try {
+                const response = await fetch('http://localhost:8000/api/health');
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('localTest').innerHTML = `
+                        <div class="success">
+                            <h4>✅ Local API Working!</h4>
+                            <p>Status: ${result.status}</p>
+                            <p>Buffalo Model: ${result.buffalo_model_loaded ? 'Loaded' : 'Not Available'}</p>
+                            <p>You can use: http://localhost:8000</p>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Local API not responding');
+                }
+            } catch (error) {
+                document.getElementById('localTest').innerHTML = `
+                    <div class="error">
+                        <h4>❌ Local API Not Running</h4>
+                        <p>Start it with: cd api && python main.py</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

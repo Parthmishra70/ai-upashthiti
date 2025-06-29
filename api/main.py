@@ -206,7 +206,7 @@ async def recognize_face(file: UploadFile = File(...)):
         # Detect faces using Buffalo model
         faces = model.get(img)
         if len(faces) == 0:
-            return {"message": "No faces detected", "recognized_faces": []}
+            return {"message": "No faces detected", "recognized_faces": [], "total_faces_detected": 0, "model_used": "buffalo_l"}
         
         recognized_faces = []
         
