@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ['python39', 'pip', 'gcc', 'glibc']
+
+[phases.install]
+cmds = ['pip install -r api/requirements.txt']
+
+[phases.build]
+cmds = ['echo "Build phase complete"']
+
+[start]
+cmd = 'cd api && python main.py'

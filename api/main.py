@@ -1,8 +1,6 @@
-import os
 from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import insightface
 import cv2
 import numpy as np
 import json
@@ -29,9 +27,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize face recognition model
-model = insightface.app.FaceAnalysis(name='buffalo_l')
-model.prepare(ctx_id=0)
+# Try to initialize face recognition model
+model = None
+try:
+    import insightface
+    model = insightface.app.FaceAnalysis(name='buffalo_l')
+    model.prepare(ctx_id=-1)  # Use CPU
+    print("✅ InsightFace model loaded successfully")
+except ImportError:
+    print("⚠️ InsightFace not available, using fallback face detection")
+    model = None
+except Exception as e:
+    print(f"⚠️ InsightFace initialization failed: {e}")
+    model = None
 
 # Data models
 class StudentRegistration(BaseModel):
@@ -106,9 +114,45 @@ def save_attendance_record(name: str, confidence: float):
     with open('attendance.csv', 'a') as f:
         f.write(f'Attendance Saved: {name} time: {timestamp} Threshold: ({confidence:.2f})\n')
 
+def detect_faces_opencv(img):
+    """Fallback face detection using OpenCV"""
+    try:
+        # Load OpenCV's pre-trained face detector
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+        
+        # Convert to format similar to InsightFace
+        detected_faces = []
+        for (x, y, w, h) in faces:
+            # Create a simple face object
+            face_obj = type('Face', (), {})()
+            face_obj.bbox = np.array([x, y, x+w, y+h])
+            # Generate a simple embedding (this is a placeholder)
+            face_region = gray[y:y+h, x:x+w]
+            if face_region.size > 0:
+                # Simple feature extraction (resize to fixed size and flatten)
+                resized = cv2.resize(face_region, (64, 64))
+                face_obj.embedding = resized.flatten().astype(np.float32)
+            else:
+                face_obj.embedding = np.random.rand(4096).astype(np.float32)
+            detected_faces.append(face_obj)
+        
+        return detected_faces
+    except Exception as e:
+        print(f"OpenCV face detection error: {e}")
+        return []
+
 @app.get("/")
 async def root():
-    return {"message": "AI Upashthiti Face Recognition API", "version": "1.0.0", "status": "online"}
+    status = "online"
+    face_engine = "InsightFace" if model else "OpenCV (Fallback)"
+    return {
+        "message": "AI Upashthiti Face Recognition API", 
+        "version": "1.0.0", 
+        "status": status,
+        "face_engine": face_engine
+    }
 
 @app.post("/api/register")
 async def register_student(
@@ -127,7 +171,11 @@ async def register_student(
             raise HTTPException(status_code=400, detail="Invalid image format")
         
         # Extract face embedding
-        faces = model.get(img)
+        if model:
+            faces = model.get(img)
+        else:
+            faces = detect_faces_opencv(img)
+        
         if len(faces) == 0:
             raise HTTPException(status_code=400, detail="No face detected in the image")
         
@@ -172,7 +220,11 @@ async def recognize_face(file: UploadFile = File(...)):
             raise HTTPException(status_code=404, detail="No registered students found")
         
         # Detect faces
-        faces = model.get(img)
+        if model:
+            faces = model.get(img)
+        else:
+            faces = detect_faces_opencv(img)
+        
         if len(faces) == 0:
             return {"message": "No faces detected", "recognized_faces": []}
         
@@ -196,7 +248,9 @@ async def recognize_face(file: UploadFile = File(...)):
                     best_score = score
                     best_match = name
             
-            if best_score > 0.6:  # Confidence threshold
+            # Lower threshold for OpenCV fallback
+            threshold = 0.6 if model else 0.3
+            if best_score > threshold:
                 # Save attendance record
                 save_attendance_record(best_match, best_score)
                 
