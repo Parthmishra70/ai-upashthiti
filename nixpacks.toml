@@ -8,4 +8,4 @@ cmds = ['pip install -r api/requirements.txt']
 cmds = ['echo "Build complete"']
 
 [start]
-cmd = 'cd api && python3 main.py'
+cmd = 'python3 api/main.py'
