@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://web-production-13b09.up.railway.app';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -35,13 +35,14 @@ export interface RecognitionResult {
     bbox: number[];
   }[];
   total_faces_detected: number;
+  model_used: string;
 }
 
 export const registerStudent = async (
   name: string,
   file: File,
   studentId?: string
-): Promise<{ message: string; student_id?: string; faces_detected: number }> => {
+): Promise<{ message: string; student_id?: string; faces_detected: number; model_used: string }> => {
   const formData = new FormData();
   formData.append('name', name);
   formData.append('file', file);
