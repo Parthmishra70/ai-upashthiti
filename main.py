@@ -23,10 +23,15 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware
+# CORS middleware - FIXED for your domain
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "*",  # Allow all origins for now
+        "https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3--3000--cb7c0bca.local-credentialless.webcontainer-api.io",
+        "http://localhost:3000",
+        "https://localhost:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -137,7 +142,8 @@ async def root():
         "status": status,
         "face_engine": face_engine,
         "buffalo_model": model is not None,
-        "execution_provider": "CPUExecutionProvider"
+        "execution_provider": "CPUExecutionProvider",
+        "cors_enabled": True
     }
 
 @app.post("/api/register")
@@ -425,12 +431,26 @@ async def health_check():
         "buffalo_model_loaded": model is not None,
         "insightface_available": model is not None,
         "execution_provider": "CPUExecutionProvider",
-        "warnings_suppressed": True
+        "warnings_suppressed": True,
+        "cors_enabled": True
     }
+
+# Add OPTIONS handler for CORS preflight
+@app.options("/{full_path:path}")
+async def options_handler():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        }
+    )
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     print(f"🚀 Starting AI Upashthiti API on port {port}")
     print(f"🤖 Buffalo model status: {'✅ Loaded (CPU)' if model else '❌ Not Available'}")
     print(f"🔧 Execution Provider: CPUExecutionProvider")
+    print(f"🌐 CORS enabled for all origins")
     uvicorn.run(app, host="0.0.0.0", port=port)

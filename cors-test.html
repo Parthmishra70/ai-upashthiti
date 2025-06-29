@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Test - AI Upashthiti</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .success { background: #4caf50; color: white; padding: 15px; margin: 20px 0; border-radius: 8px; }
+        .error { background: #f44336; color: white; padding: 15px; margin: 20px 0; border-radius: 8px; }
+        .info { background: #2196F3; color: white; padding: 15px; margin: 20px 0; border-radius: 8px; }
+        .button { background: #2196F3; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; margin: 5px; }
+        .button:hover { background: #1976D2; }
+        .results { background: #e3f2fd; padding: 15px; margin: 15px 0; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <h2>🔧 CORS & 502 Error Fix Test</h2>
+        <p>Testing the fixed Railway API with proper CORS headers</p>
+        <p><strong>API URL:</strong> https://web-production-13b09.up.railway.app</p>
+    </div>
+
+    <div class="results">
+        <h3>🧪 Test Results</h3>
+        <div id="testResults">Click buttons below to test...</div>
+    </div>
+
+    <button class="button" onclick="testHealth()">🏥 Test Health</button>
+    <button class="button" onclick="testStudents()">👥 Test Students</button>
+    <button class="button" onclick="testCORS()">🌐 Test CORS</button>
+
+    <script>
+        const API_URL = 'https://web-production-13b09.up.railway.app';
+
+        async function testHealth() {
+            try {
+                updateResults('⏳ Testing health endpoint...');
+                
+                const response = await fetch(`${API_URL}/api/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                updateResults(`
+                    <div class="success">
+                        <h4>✅ Health Check Success!</h4>
+                        <p><strong>Status:</strong> ${result.status}</p>
+                        <p><strong>Buffalo Model:</strong> ${result.buffalo_model_loaded ? '✅ Loaded' : '❌ Not Available'}</p>
+                        <p><strong>CORS:</strong> ${result.cors_enabled ? '✅ Enabled' : '❌ Disabled'}</p>
+                        <p><strong>Timestamp:</strong> ${new Date(result.timestamp).toLocaleString()}</p>
+                    </div>
+                `);
+            } catch (error) {
+                updateResults(`
+                    <div class="error">
+                        <h4>❌ Health Check Failed</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Possible Issues:</strong></p>
+                        <ul>
+                            <li>Railway deployment is down</li>
+                            <li>API is still starting up</li>
+                            <li>Network connectivity issue</li>
+                        </ul>
+                    </div>
+                `);
+            }
+        }
+
+        async function testStudents() {
+            try {
+                updateResults('⏳ Testing students endpoint...');
+                
+                const response = await fetch(`${API_URL}/api/students`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                updateResults(`
+                    <div class="success">
+                        <h4>✅ Students Endpoint Success!</h4>
+                        <p><strong>Total Students:</strong> ${result.total}</p>
+                        <p><strong>Students:</strong> ${result.students.map(s => s.name).join(', ')}</p>
+                        <p><strong>CORS Headers:</strong> ✅ Working</p>
+                    </div>
+                `);
+            } catch (error) {
+                updateResults(`
+                    <div class="error">
+                        <h4>❌ Students Endpoint Failed</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>This indicates CORS or API issues</p>
+                    </div>
+                `);
+            }
+        }
+
+        async function testCORS() {
+            try {
+                updateResults('⏳ Testing CORS preflight...');
+                
+                // Test OPTIONS request (CORS preflight)
+                const optionsResponse = await fetch(`${API_URL}/api/health`, {
+                    method: 'OPTIONS',
+                });
+
+                const getResponse = await fetch(`${API_URL}/api/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': window.location.origin
+                    }
+                });
+
+                if (getResponse.ok) {
+                    updateResults(`
+                        <div class="success">
+                            <h4>✅ CORS Test Success!</h4>
+                            <p><strong>OPTIONS Response:</strong> ${optionsResponse.status}</p>
+                            <p><strong>GET Response:</strong> ${getResponse.status}</p>
+                            <p><strong>Origin:</strong> ${window.location.origin}</p>
+                            <p>CORS is properly configured!</p>
+                        </div>
+                    `);
+                } else {
+                    throw new Error(`GET request failed: ${getResponse.status}`);
+                }
+            } catch (error) {
+                updateResults(`
+                    <div class="error">
+                        <h4>❌ CORS Test Failed</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>CORS headers may not be properly configured</p>
+                    </div>
+                `);
+            }
+        }
+
+        function updateResults(html) {
+            document.getElementById('testResults').innerHTML = html;
+        }
+
+        // Auto-test on page load
+        window.onload = () => {
+            setTimeout(testHealth, 1000);
+        };
+    </script>
+</body>
+</html>
