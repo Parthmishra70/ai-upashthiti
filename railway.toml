@@ -1,8 +1,9 @@
 [build]
-builder = "DOCKERFILE"
+builder = "NIXPACKS"
 
 [deploy]
-startCommand = "python main.py"
+startCommand = "cd api && python main.py"
 
 [env]
 PORT = "8000"
+PYTHON_VERSION = "3.9"
