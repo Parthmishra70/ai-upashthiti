@@ -112,7 +112,7 @@
             
             try {
                 showLoading('recognizeResult');
-                const response = await fetch(`${API_URL}/api/recognize`, {
+                const response = await fetch(`${API_URL}/api/analyze`, {
                     method: 'POST',
                     body: formData
                 });

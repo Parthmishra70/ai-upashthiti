@@ -40,7 +40,7 @@ Body: file (image/video frame)
 
 ### 2. 🔍 **Single Image Recognition**
 ```http
-POST /api/recognize
+POST /api/analyze
 Content-Type: multipart/form-data
 Body: file (image)
 ```

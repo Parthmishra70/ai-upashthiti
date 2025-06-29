@@ -151,7 +151,7 @@ async def root():
         "streaming_support": True,
         "endpoints": {
             "register": "POST /api/register",
-            "recognize": "POST /api/recognize", 
+            "recognize": "POST /api/analyze", 
             "analyze": "POST /api/analyze (for streaming)",
             "students": "GET /api/students",
             "health": "GET /api/health"

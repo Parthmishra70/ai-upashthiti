@@ -222,7 +222,7 @@ const FaceRecognition: React.FC = () => {
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-2">Use this endpoint to integrate face recognition into your application:</p>
           <code className="block bg-gray-800 text-green-400 p-3 rounded text-sm overflow-x-auto">
-            POST /api/recognize
+            POST /api/analyze
             <br />
             Content-Type: multipart/form-data
             <br />

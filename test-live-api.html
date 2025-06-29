@@ -49,10 +49,10 @@
         <h2>📝 Correct API URLs</h2>
         <div class="api-url">
             <strong>✅ CORRECT (Live Railway API):</strong><br>
-            POST https://web-production-13b09.up.railway.app/api/recognize<br><br>
+            POST https://web-production-13b09.up.railway.app/api/analyze<br><br>
             
             <strong>❌ INCORRECT (Local - Not Running):</strong><br>
-            POST http://localhost:8000/api/recognize
+            POST http://localhost:8000/api/analyze
         </div>
     </div>
 
@@ -74,9 +74,9 @@
             
             try {
                 showLoading('recognizeResult');
-                console.log('🔄 Testing API:', `${API_URL}/api/recognize`);
+                console.log('🔄 Testing API:', `${API_URL}/api/analyze`);
                 
-                const response = await fetch(`${API_URL}/api/recognize`, {
+                const response = await fetch(`${API_URL}/api/analyze`, {
                     method: 'POST',
                     body: formData
                 });

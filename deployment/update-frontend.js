@@ -39,7 +39,7 @@ async function recognizeFaces(imageFile) {
   const formData = new FormData();
   formData.append('file', imageFile);
   
-  const response = await fetch('https://your-app.railway.app/api/recognize', {
+  const response = await fetch('https://your-app.railway.app/api/analyze', {
     method: 'POST',
     body: formData
   });
@@ -118,7 +118,7 @@ const htmlExample = \`
             formData.append('file', file);
             
             try {
-                const response = await fetch(\`\${API_URL}/api/recognize\`, {
+                const response = await fetch(\`\${API_URL}/api/analyze\`, {
                     method: 'POST',
                     body: formData
                 });

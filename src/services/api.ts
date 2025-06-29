@@ -90,7 +90,7 @@ export const recognizeFace = async (file: File): Promise<RecognitionResult> => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await api.post('/api/recognize', formData, {
+  const response = await api.post('/api/analyze', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
