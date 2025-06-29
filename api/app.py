@@ -262,57 +262,6 @@ def analyze():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/students', methods=['GET'])
-def get_students():
-    """Get list of registered students"""
-    students = []
-    for name in db.keys():
-        students.append({
-            "name": name,
-            "registered_at": datetime.now().isoformat()  # Placeholder
-        })
-    
-    return jsonify({
-        "students": students,
-        "total": len(students)
-    })
-
-@app.route('/api/attendance', methods=['GET'])
-def get_attendance():
-    """Get attendance records"""
-    try:
-        records = []
-        if os.path.exists(ATTENDANCE_LOG_PATH):
-            with open(ATTENDANCE_LOG_PATH, "r") as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    if len(row) >= 3:
-                        records.append({
-                            "timestamp": row[0],
-                            "name": row[1],
-                            "confidence": float(row[2])
-                        })
-        
-        return jsonify({
-            "records": records[-50:],  # Last 50 records
-            "total": len(records)
-        })
-    
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/health', methods=['GET'])
-def detailed_health():
-    """Detailed health check"""
-    return jsonify({
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "buffalo_model_loaded": model is not None,
-        "insightface_available": model is not None,
-        "registered_faces": len(db),
-        "embeddings_file_exists": os.path.exists(EMBEDDINGS_DB_PATH),
-        "attendance_file_exists": os.path.exists(ATTENDANCE_LOG_PATH)
-    })
 
 # Run the server
 if __name__ == '__main__':
