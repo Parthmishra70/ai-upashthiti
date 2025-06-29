@@ -2,9 +2,9 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "python api/app.py"
+startCommand = "python api/main.py"
 
 [env]
-PORT = "5174"
+PORT = "8000"
 PYTHON_VERSION = "3.9"
 NIXPACKS_PYTHON_VERSION = "3.9"

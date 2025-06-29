@@ -5,14 +5,14 @@ nixPkgs = ['python39', 'pip', 'gcc', 'glibc', 'cmake', 'pkg-config']
 cmds = [
   'pip install --upgrade pip',
   'pip install wheel setuptools',
-  'pip install -r api/requirements-flask.txt'
+  'pip install -r api/requirements.txt'
 ]
 
 [phases.build]
 cmds = ['echo "Build phase complete"']
 
 [start]
-cmd = 'python api/app.py'
+cmd = 'python api/main.py'
 
 [variables]
 PYTHON_VERSION = "3.9"
