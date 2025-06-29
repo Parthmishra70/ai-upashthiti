@@ -12,11 +12,17 @@ RUN apt-get update && apt-get install -y \
     libxrender-dev \
     libgomp1 \
     curl \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
 COPY api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Pre-download and cache Buffalo model
+RUN mkdir -p /root/.insightface/models/buffalo_l
+RUN curl -L https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip -o /root/.insightface/models/buffalo_l.zip
+RUN cd /root/.insightface/models && unzip buffalo_l.zip && rm buffalo_l.zip
 
 # Copy API code
 COPY api/ .
