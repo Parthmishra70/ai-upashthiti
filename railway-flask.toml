@@ -1,0 +1,10 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "cd api && python app.py"
+
+[env]
+PORT = "5174"
+PYTHON_VERSION = "3.9"
+NIXPACKS_PYTHON_VERSION = "3.9"
