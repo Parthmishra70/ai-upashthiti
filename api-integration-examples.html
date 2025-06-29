@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Upashthiti API Integration Examples</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .example { background: #f5f5f5; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        .button:hover { background: #45a049; }
+        .results { background: #e7f3ff; padding: 10px; margin: 10px 0; border-radius: 4px; }
+        input[type="file"], input[type="text"] { margin: 5px; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🤖 AI Upashthiti API - Live Integration Examples</h1>
+    
+    <div class="example">
+        <h2>📝 Register New Student</h2>
+        <input type="text" id="studentName" placeholder="Enter student name" />
+        <input type="text" id="studentId" placeholder="Student ID (optional)" />
+        <input type="file" id="studentPhoto" accept="image/*" />
+        <button class="button" onclick="registerStudent()">Register Student</button>
+        <div id="registerResult" class="results" style="display:none;"></div>
+    </div>
+
+    <div class="example">
+        <h2>🔍 Recognize Faces</h2>
+        <input type="file" id="recognizePhoto" accept="image/*" />
+        <button class="button" onclick="recognizeFaces()">Recognize Faces</button>
+        <div id="recognizeResult" class="results" style="display:none;"></div>
+    </div>
+
+    <div class="example">
+        <h2>👥 Get All Students</h2>
+        <button class="button" onclick="getStudents()">Load Students</button>
+        <div id="studentsResult" class="results" style="display:none;"></div>
+    </div>
+
+    <div class="example">
+        <h2>📊 Attendance Statistics</h2>
+        <button class="button" onclick="getStats()">Get Stats</button>
+        <div id="statsResult" class="results" style="display:none;"></div>
+    </div>
+
+    <script>
+        // 🔗 UPDATE THIS URL WITH YOUR RAILWAY DEPLOYMENT URL
+        const API_URL = 'https://your-app.railway.app';
+        
+        // 📝 Register Student Function
+        async function registerStudent() {
+            const name = document.getElementById('studentName').value;
+            const studentId = document.getElementById('studentId').value;
+            const file = document.getElementById('studentPhoto').files[0];
+            
+            if (!name || !file) {
+                alert('Please provide student name and photo');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('file', file);
+            if (studentId) formData.append('student_id', studentId);
+            
+            try {
+                showLoading('registerResult');
+                const response = await fetch(`${API_URL}/api/register`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                document.getElementById('registerResult').innerHTML = `
+                    <h3>✅ Registration Successful!</h3>
+                    <p><strong>Message:</strong> ${result.message}</p>
+                    <p><strong>Faces Detected:</strong> ${result.faces_detected}</p>
+                    ${result.student_id ? `<p><strong>Student ID:</strong> ${result.student_id}</p>` : ''}
+                `;
+                
+                // Clear form
+                document.getElementById('studentName').value = '';
+                document.getElementById('studentId').value = '';
+                document.getElementById('studentPhoto').value = '';
+                
+            } catch (error) {
+                showError('registerResult', error.message);
+            }
+        }
+        
+        // 🔍 Recognize Faces Function
+        async function recognizeFaces() {
+            const file = document.getElementById('recognizePhoto').files[0];
+            
+            if (!file) {
+                alert('Please select a photo to analyze');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                showLoading('recognizeResult');
+                const response = await fetch(`${API_URL}/api/recognize`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                let html = `
+                    <h3>🔍 Recognition Results</h3>
+                    <p><strong>Message:</strong> ${result.message}</p>
+                    <p><strong>Total Faces Detected:</strong> ${result.total_faces_detected}</p>
+                    <p><strong>Recognized Students:</strong> ${result.recognized_faces.length}</p>
+                `;
+                
+                if (result.recognized_faces.length > 0) {
+                    html += '<h4>👥 Recognized Students:</h4><ul>';
+                    result.recognized_faces.forEach(face => {
+                        html += `
+                            <li>
+                                <strong>${face.name}</strong> 
+                                (Confidence: ${(face.confidence * 100).toFixed(1)}%)
+                                ${face.student_id ? ` - ID: ${face.student_id}` : ''}
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                } else {
+                    html += '<p>❌ No registered students found in this image</p>';
+                }
+                
+                document.getElementById('recognizeResult').innerHTML = html;
+                
+            } catch (error) {
+                showError('recognizeResult', error.message);
+            }
+        }
+        
+        // 👥 Get Students Function
+        async function getStudents() {
+            try {
+                showLoading('studentsResult');
+                const response = await fetch(`${API_URL}/api/students`);
+                const result = await response.json();
+                
+                let html = `
+                    <h3>👥 Registered Students (${result.total})</h3>
+                `;
+                
+                if (result.students.length > 0) {
+                    html += '<ul>';
+                    result.students.forEach(student => {
+                        html += `
+                            <li>
+                                <strong>${student.name}</strong>
+                                ${student.student_id ? ` (ID: ${student.student_id})` : ''}
+                                ${student.registered_at ? ` - Registered: ${new Date(student.registered_at).toLocaleDateString()}` : ''}
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                } else {
+                    html += '<p>No students registered yet</p>';
+                }
+                
+                document.getElementById('studentsResult').innerHTML = html;
+                
+            } catch (error) {
+                showError('studentsResult', error.message);
+            }
+        }
+        
+        // 📊 Get Statistics Function
+        async function getStats() {
+            try {
+                showLoading('statsResult');
+                const response = await fetch(`${API_URL}/api/attendance/stats`);
+                const result = await response.json();
+                
+                let html = `
+                    <h3>📊 Attendance Statistics</h3>
+                    <p><strong>Total Students:</strong> ${result.total_students}</p>
+                    <p><strong>Present Today:</strong> ${result.present_today}</p>
+                    <p><strong>Attendance Rate:</strong> ${result.attendance_rate}%</p>
+                `;
+                
+                if (result.recent_entries && result.recent_entries.length > 0) {
+                    html += '<h4>🕒 Recent Activity:</h4><ul>';
+                    result.recent_entries.slice(0, 5).forEach(entry => {
+                        html += `
+                            <li>
+                                <strong>${entry.name}</strong> - 
+                                ${new Date(entry.timestamp).toLocaleString()} 
+                                (${(entry.confidence * 100).toFixed(1)}% confidence)
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                }
+                
+                document.getElementById('statsResult').innerHTML = html;
+                
+            } catch (error) {
+                showError('statsResult', error.message);
+            }
+        }
+        
+        // Helper Functions
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = '<p>⏳ Loading...</p>';
+        }
+        
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = `<p style="color: red;">❌ Error: ${message}</p>`;
+        }
+        
+        // Show API URL info
+        document.addEventListener('DOMContentLoaded', function() {
+            if (API_URL.includes('your-app')) {
+                document.body.insertAdjacentHTML('afterbegin', `
+                    <div style="background: #ffeb3b; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+                        <h3>⚠️ Update Required</h3>
+                        <p>Please update the <code>API_URL</code> in this file with your actual Railway deployment URL.</p>
+                        <p>Current URL: <code>${API_URL}</code></p>
+                    </div>
+                `);
+            } else {
+                document.body.insertAdjacentHTML('afterbegin', `
+                    <div style="background: #4caf50; color: white; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+                        <h3>✅ API Connected</h3>
+                        <p>Connected to: <code>${API_URL}</code></p>
+                        <p><a href="${API_URL}/docs" target="_blank" style="color: white;">📖 View API Documentation</a></p>
+                    </div>
+                `);
+            }
+        });
+    </script>
+</body>
+</html>

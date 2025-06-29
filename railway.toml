@@ -1,0 +1,8 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "cd api && python main.py"
+
+[env]
+PORT = "8000"
