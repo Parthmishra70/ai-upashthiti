@@ -210,7 +210,7 @@ async def register_student(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/recognize")
+@app.post("/api/analyze")
 async def recognize_face(file: UploadFile = File(...)):
     """Recognize faces in an uploaded image using Buffalo model"""
     if not model:

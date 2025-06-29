@@ -46,7 +46,7 @@ VITE_API_URL=https://your-app.railway.app
 **Other websites can now use:**
 ```javascript
 // Any website can now call your API
-fetch('https://your-app.railway.app/api/recognize', {
+fetch('https://your-app.railway.app/api/analyze', {
   method: 'POST',
   body: formData
 });

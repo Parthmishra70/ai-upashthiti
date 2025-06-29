@@ -3,7 +3,7 @@
 ## ❌ **WRONG - Local API (Not Running)**
 ```bash
 # This will fail because no local server is running
-curl -X POST "http://localhost:8000/api/recognize" \
+curl -X POST "http://localhost:8000/api/analyze" \
   -F "file=@photo.jpg"
 ```
 
@@ -11,7 +11,7 @@ curl -X POST "http://localhost:8000/api/recognize" \
 
 ### 1. Test Face Recognition
 ```bash
-curl -X POST "https://web-production-13b09.up.railway.app/api/recognize" \
+curl -X POST "https://web-production-13b09.up.railway.app/api/analyze" \
   -F "file=@photo.jpg"
 ```
 
@@ -37,7 +37,7 @@ curl "https://web-production-13b09.up.railway.app/api/attendance/stats"
 const formData = new FormData();
 formData.append('file', imageFile);
 
-const response = await fetch('https://web-production-13b09.up.railway.app/api/recognize', {
+const response = await fetch('https://web-production-13b09.up.railway.app/api/analyze', {
   method: 'POST',
   body: formData
 });
@@ -59,7 +59,7 @@ console.log(students);
 ```python
 import requests
 
-url = "https://web-production-13b09.up.railway.app/api/recognize"
+url = "https://web-production-13b09.up.railway.app/api/analyze"
 
 with open('photo.jpg', 'rb') as f:
     files = {'file': f}

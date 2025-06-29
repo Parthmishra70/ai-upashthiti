@@ -99,9 +99,9 @@ GET /api/health
 
 **Purpose:** Check API status and model availability
 
-## 🎯 Key Differences: `/api/analyze` vs `/api/recognize`
+## 🎯 Key Differences: `/api/analyze` vs `/api/analyze`
 
-| Feature | `/api/analyze` (Streaming) | `/api/recognize` (Single) |
+| Feature | `/api/analyze` (Streaming) | `/api/analyze` (Single) |
 |---------|---------------------------|---------------------------|
 | **Purpose** | Real-time streaming | Single image processing |
 | **Use Case** | Video feeds, live cameras | Photo uploads |

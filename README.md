@@ -77,7 +77,7 @@ Parameters:
 
 #### 2. Recognize Faces
 ```http
-POST /api/recognize
+POST /api/analyze
 Content-Type: multipart/form-data
 
 Parameters:
@@ -133,7 +133,7 @@ const recognizeFaces = async (imageFile) => {
   const formData = new FormData();
   formData.append('file', imageFile);
   
-  const response = await fetch('https://web-production-13b09.up.railway.app/api/recognize', {
+  const response = await fetch('https://web-production-13b09.up.railway.app/api/analyze', {
     method: 'POST',
     body: formData
   });
@@ -162,7 +162,7 @@ def register_student(name, image_path, student_id=None):
 
 # Recognize faces
 def recognize_faces(image_path):
-    url = "https://web-production-13b09.up.railway.app/api/recognize"
+    url = "https://web-production-13b09.up.railway.app/api/analyze"
     
     with open(image_path, 'rb') as f:
         files = {'file': f}
@@ -179,7 +179,7 @@ curl -X POST "https://web-production-13b09.up.railway.app/api/register" \
   -F "file=@photo.jpg"
 
 # Recognize faces
-curl -X POST "https://web-production-13b09.up.railway.app/api/recognize" \
+curl -X POST "https://web-production-13b09.up.railway.app/api/analyze" \
   -F "file=@group_photo.jpg"
 
 # Get all students

@@ -57,7 +57,7 @@ const registerResponse = await fetch(`${API_URL}/api/register`, {
 });
 
 // Recognize faces  
-const recognizeResponse = await fetch(`${API_URL}/api/recognize`, {
+const recognizeResponse = await fetch(`${API_URL}/api/analyze`, {
   method: 'POST',
   body: formData // image file
 });
@@ -106,7 +106,7 @@ const recognizeResponse = await fetch(`${API_URL}/api/recognize`, {
 // A school website can integrate your API
 const attendanceSystem = {
   async markAttendance(classPhoto) {
-    const response = await fetch('https://your-app.railway.app/api/recognize', {
+    const response = await fetch('https://your-app.railway.app/api/analyze', {
       method: 'POST',
       body: createFormData(classPhoto)
     });
@@ -120,7 +120,7 @@ const attendanceSystem = {
 // Event organizers can use for check-ins
 const eventCheckIn = {
   async checkInGuest(guestPhoto) {
-    const response = await fetch('https://your-app.railway.app/api/recognize', {
+    const response = await fetch('https://your-app.railway.app/api/analyze', {
       method: 'POST', 
       body: createFormData(guestPhoto)
     });
@@ -134,7 +134,7 @@ const eventCheckIn = {
 // Security companies can integrate for access control
 const securitySystem = {
   async verifyAccess(securityPhoto) {
-    const response = await fetch('https://your-app.railway.app/api/recognize', {
+    const response = await fetch('https://your-app.railway.app/api/analyze', {
       method: 'POST',
       body: createFormData(securityPhoto)
     });
@@ -152,7 +152,7 @@ Once deployed, test your API:
 curl https://your-app.railway.app/
 
 # Test face recognition endpoint
-curl -X POST "https://your-app.railway.app/api/recognize" \
+curl -X POST "https://your-app.railway.app/api/analyze" \
   -F "file=@test_image.jpg"
 
 # View interactive documentation
@@ -189,7 +189,7 @@ Your face recognition API is now:
 **Your API endpoints are now live at:**
 - Main API: `https://your-app.railway.app`
 - Documentation: `https://your-app.railway.app/docs`
-- Face Recognition: `https://your-app.railway.app/api/recognize`
+- Face Recognition: `https://your-app.railway.app/api/analyze`
 - Student Registration: `https://your-app.railway.app/api/register`
 
 Any developer worldwide can now integrate your face recognition system! 🚀

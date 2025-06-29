@@ -73,7 +73,7 @@ const response = await fetch(`${API_URL}/api/register`, {
 const recognizeData = new FormData();
 recognizeData.append('file', photoFile);
 
-const result = await fetch(`${API_URL}/api/recognize`, {
+const result = await fetch(`${API_URL}/api/analyze`, {
   method: 'POST',
   body: recognizeData
 });
@@ -84,7 +84,7 @@ const result = await fetch(`${API_URL}/api/recognize`, {
 - **Main API:** `https://your-app.railway.app`
 - **Interactive Docs:** `https://your-app.railway.app/docs`
 - **Register Student:** `POST https://your-app.railway.app/api/register`
-- **Recognize Faces:** `POST https://your-app.railway.app/api/recognize`
+- **Recognize Faces:** `POST https://your-app.railway.app/api/analyze`
 - **Get Students:** `GET https://your-app.railway.app/api/students`
 - **Attendance Stats:** `GET https://your-app.railway.app/api/attendance/stats`
 

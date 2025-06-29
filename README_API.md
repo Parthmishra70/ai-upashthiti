@@ -55,7 +55,7 @@ Once running, your API will be available at `http://localhost:8000`
 ### Core Endpoints:
 
 - **POST /api/register** - Register a new student
-- **POST /api/recognize** - Recognize faces in an image
+- **POST /api/analyze** - Recognize faces in an image
 - **GET /api/students** - Get all registered students
 - **DELETE /api/students/{name}** - Delete a student
 - **GET /api/attendance/stats** - Get attendance statistics
@@ -90,7 +90,7 @@ import requests
 # Recognize faces
 with open('image.jpg', 'rb') as f:
     response = requests.post(
-        'http://localhost:8000/api/recognize',
+        'http://localhost:8000/api/analyze',
         files={'file': f}
     )
     
@@ -105,7 +105,7 @@ curl -X POST "http://localhost:8000/api/register" \
   -F "file=@photo.jpg"
 
 # Recognize faces
-curl -X POST "http://localhost:8000/api/recognize" \
+curl -X POST "http://localhost:8000/api/analyze" \
   -F "file=@group_photo.jpg"
 ```
 
