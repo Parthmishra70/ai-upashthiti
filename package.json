@@ -1,22 +1,17 @@
 {
-  "name": "ai-upashthiti-web",
+  "name": "ai-upashthiti-simple",
   "version": "1.0.0",
-  "description": "Face Recognition Attendance System with Web API",
+  "description": "Simple Face Recognition System",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "api": "python api/main.py"
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@tanstack/react-query": "^5.0.0",
-    "axios": "^1.6.0",
-    "lucide-react": "^0.400.0",
-    "recharts": "^2.8.0",
-    "date-fns": "^3.0.0"
+    "lucide-react": "^0.400.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
