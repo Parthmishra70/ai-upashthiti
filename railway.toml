@@ -1,9 +1,8 @@
 [build]
-builder = "NIXPACKS"
+builder = "DOCKERFILE"
 
 [deploy]
-startCommand = "python3 api/main.py"
+startCommand = "python main.py"
 
 [env]
 PORT = "8000"
-PYTHONPATH = "/app"
