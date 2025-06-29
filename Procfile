@@ -1,1 +1,1 @@
-web: python api/main.py
+web: cd api && python main.py
