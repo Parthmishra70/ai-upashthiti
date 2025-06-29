@@ -7,3 +7,4 @@ startCommand = "cd api && python main.py"
 [env]
 PORT = "8000"
 PYTHON_VERSION = "3.9"
+NIXPACKS_PYTHON_VERSION = "3.9"

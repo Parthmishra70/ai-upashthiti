@@ -27,18 +27,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Try to initialize face recognition model
+# Initialize face recognition model with Buffalo
 model = None
 try:
     import insightface
+    print("🔄 Loading InsightFace Buffalo model...")
     model = insightface.app.FaceAnalysis(name='buffalo_l')
-    model.prepare(ctx_id=-1)  # Use CPU
-    print("✅ InsightFace model loaded successfully")
-except ImportError:
-    print("⚠️ InsightFace not available, using fallback face detection")
+    model.prepare(ctx_id=-1)  # Use CPU for Railway compatibility
+    print("✅ InsightFace Buffalo model loaded successfully")
+except ImportError as e:
+    print(f"❌ InsightFace not available: {e}")
+    print("⚠️ Face recognition will not work without InsightFace")
     model = None
 except Exception as e:
-    print(f"⚠️ InsightFace initialization failed: {e}")
+    print(f"❌ InsightFace initialization failed: {e}")
+    print("⚠️ Trying to continue without InsightFace...")
     model = None
 
 # Data models
@@ -114,44 +117,16 @@ def save_attendance_record(name: str, confidence: float):
     with open('attendance.csv', 'a') as f:
         f.write(f'Attendance Saved: {name} time: {timestamp} Threshold: ({confidence:.2f})\n')
 
-def detect_faces_opencv(img):
-    """Fallback face detection using OpenCV"""
-    try:
-        # Load OpenCV's pre-trained face detector
-        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
-        
-        # Convert to format similar to InsightFace
-        detected_faces = []
-        for (x, y, w, h) in faces:
-            # Create a simple face object
-            face_obj = type('Face', (), {})()
-            face_obj.bbox = np.array([x, y, x+w, y+h])
-            # Generate a simple embedding (this is a placeholder)
-            face_region = gray[y:y+h, x:x+w]
-            if face_region.size > 0:
-                # Simple feature extraction (resize to fixed size and flatten)
-                resized = cv2.resize(face_region, (64, 64))
-                face_obj.embedding = resized.flatten().astype(np.float32)
-            else:
-                face_obj.embedding = np.random.rand(4096).astype(np.float32)
-            detected_faces.append(face_obj)
-        
-        return detected_faces
-    except Exception as e:
-        print(f"OpenCV face detection error: {e}")
-        return []
-
 @app.get("/")
 async def root():
     status = "online"
-    face_engine = "InsightFace" if model else "OpenCV (Fallback)"
+    face_engine = "InsightFace Buffalo" if model else "❌ InsightFace Not Available"
     return {
         "message": "AI Upashthiti Face Recognition API", 
         "version": "1.0.0", 
         "status": status,
-        "face_engine": face_engine
+        "face_engine": face_engine,
+        "buffalo_model": model is not None
     }
 
 @app.post("/api/register")
@@ -161,6 +136,12 @@ async def register_student(
     student_id: Optional[str] = None
 ):
     """Register a new student with their face image"""
+    if not model:
+        raise HTTPException(
+            status_code=503, 
+            detail="Face recognition model not available. InsightFace Buffalo model required."
+        )
+    
     try:
         # Read and decode image
         contents = await file.read()
@@ -170,12 +151,8 @@ async def register_student(
         if img is None:
             raise HTTPException(status_code=400, detail="Invalid image format")
         
-        # Extract face embedding
-        if model:
-            faces = model.get(img)
-        else:
-            faces = detect_faces_opencv(img)
-        
+        # Extract face embedding using Buffalo model
+        faces = model.get(img)
         if len(faces) == 0:
             raise HTTPException(status_code=400, detail="No face detected in the image")
         
@@ -194,9 +171,10 @@ async def register_student(
         save_embeddings_db(db)
         
         return {
-            "message": f"Student {name} registered successfully",
+            "message": f"Student {name} registered successfully with Buffalo model",
             "student_id": student_id,
-            "faces_detected": len(faces)
+            "faces_detected": len(faces),
+            "model_used": "buffalo_l"
         }
         
     except Exception as e:
@@ -204,7 +182,13 @@ async def register_student(
 
 @app.post("/api/recognize")
 async def recognize_face(file: UploadFile = File(...)):
-    """Recognize faces in an uploaded image"""
+    """Recognize faces in an uploaded image using Buffalo model"""
+    if not model:
+        raise HTTPException(
+            status_code=503, 
+            detail="Face recognition model not available. InsightFace Buffalo model required."
+        )
+    
     try:
         # Read and decode image
         contents = await file.read()
@@ -219,12 +203,8 @@ async def recognize_face(file: UploadFile = File(...)):
         if not db:
             raise HTTPException(status_code=404, detail="No registered students found")
         
-        # Detect faces
-        if model:
-            faces = model.get(img)
-        else:
-            faces = detect_faces_opencv(img)
-        
+        # Detect faces using Buffalo model
+        faces = model.get(img)
         if len(faces) == 0:
             return {"message": "No faces detected", "recognized_faces": []}
         
@@ -248,9 +228,7 @@ async def recognize_face(file: UploadFile = File(...)):
                     best_score = score
                     best_match = name
             
-            # Lower threshold for OpenCV fallback
-            threshold = 0.6 if model else 0.3
-            if best_score > threshold:
+            if best_score > 0.6:  # Buffalo model confidence threshold
                 # Save attendance record
                 save_attendance_record(best_match, best_score)
                 
@@ -262,9 +240,10 @@ async def recognize_face(file: UploadFile = File(...)):
                 })
         
         return {
-            "message": f"Recognized {len(recognized_faces)} faces",
+            "message": f"Recognized {len(recognized_faces)} faces using Buffalo model",
             "recognized_faces": recognized_faces,
-            "total_faces_detected": len(faces)
+            "total_faces_detected": len(faces),
+            "model_used": "buffalo_l"
         }
         
     except Exception as e:
@@ -418,6 +397,18 @@ async def delete_student(student_name: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "buffalo_model_loaded": model is not None,
+        "insightface_available": model is not None
+    }
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
+    print(f"🚀 Starting AI Upashthiti API on port {port}")
+    print(f"🤖 Buffalo model status: {'✅ Loaded' if model else '❌ Not Available'}")
     uvicorn.run(app, host="0.0.0.0", port=port)

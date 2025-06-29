@@ -1,11 +1,18 @@
 [phases.setup]
-nixPkgs = ['python39', 'pip', 'gcc', 'glibc']
+nixPkgs = ['python39', 'pip', 'gcc', 'glibc', 'cmake', 'pkg-config']
 
 [phases.install]
-cmds = ['pip install -r api/requirements.txt']
+cmds = [
+  'pip install --upgrade pip',
+  'pip install wheel setuptools',
+  'pip install -r api/requirements.txt'
+]
 
 [phases.build]
 cmds = ['echo "Build phase complete"']
 
 [start]
 cmd = 'cd api && python main.py'
+
+[variables]
+PYTHON_VERSION = "3.9"
