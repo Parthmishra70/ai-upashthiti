@@ -11,6 +11,11 @@ import base64
 from pydantic import BaseModel
 import uvicorn
 from collections import defaultdict, Counter
+import warnings
+
+# Suppress ONNX Runtime warnings about CUDA
+warnings.filterwarnings("ignore", message=".*CUDAExecutionProvider.*")
+warnings.filterwarnings("ignore", message=".*Specified provider.*")
 
 app = FastAPI(
     title="AI Upashthiti - Face Recognition API",
@@ -32,9 +37,14 @@ model = None
 try:
     import insightface
     print("🔄 Loading InsightFace Buffalo model...")
-    model = insightface.app.FaceAnalysis(name='buffalo_l')
+    
+    # Force CPU-only execution for Railway compatibility
+    model = insightface.app.FaceAnalysis(
+        name='buffalo_l',
+        providers=['CPUExecutionProvider']  # Only use CPU
+    )
     model.prepare(ctx_id=-1)  # Use CPU for Railway compatibility
-    print("✅ InsightFace Buffalo model loaded successfully")
+    print("✅ InsightFace Buffalo model loaded successfully on CPU")
 except ImportError as e:
     print(f"❌ InsightFace not available: {e}")
     print("⚠️ Face recognition will not work without InsightFace")
@@ -120,13 +130,14 @@ def save_attendance_record(name: str, confidence: float):
 @app.get("/")
 async def root():
     status = "online"
-    face_engine = "InsightFace Buffalo" if model else "❌ InsightFace Not Available"
+    face_engine = "InsightFace Buffalo (CPU)" if model else "❌ InsightFace Not Available"
     return {
         "message": "AI Upashthiti Face Recognition API", 
         "version": "1.0.0", 
         "status": status,
         "face_engine": face_engine,
-        "buffalo_model": model is not None
+        "buffalo_model": model is not None,
+        "execution_provider": "CPUExecutionProvider"
     }
 
 @app.post("/api/register")
@@ -174,7 +185,8 @@ async def register_student(
             "message": f"Student {name} registered successfully with Buffalo model",
             "student_id": student_id,
             "faces_detected": len(faces),
-            "model_used": "buffalo_l"
+            "model_used": "buffalo_l",
+            "execution_provider": "CPUExecutionProvider"
         }
         
     except Exception as e:
@@ -206,7 +218,13 @@ async def recognize_face(file: UploadFile = File(...)):
         # Detect faces using Buffalo model
         faces = model.get(img)
         if len(faces) == 0:
-            return {"message": "No faces detected", "recognized_faces": [], "total_faces_detected": 0, "model_used": "buffalo_l"}
+            return {
+                "message": "No faces detected", 
+                "recognized_faces": [], 
+                "total_faces_detected": 0, 
+                "model_used": "buffalo_l",
+                "execution_provider": "CPUExecutionProvider"
+            }
         
         recognized_faces = []
         
@@ -243,7 +261,8 @@ async def recognize_face(file: UploadFile = File(...)):
             "message": f"Recognized {len(recognized_faces)} faces using Buffalo model",
             "recognized_faces": recognized_faces,
             "total_faces_detected": len(faces),
-            "model_used": "buffalo_l"
+            "model_used": "buffalo_l",
+            "execution_provider": "CPUExecutionProvider"
         }
         
     except Exception as e:
@@ -404,11 +423,14 @@ async def health_check():
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "buffalo_model_loaded": model is not None,
-        "insightface_available": model is not None
+        "insightface_available": model is not None,
+        "execution_provider": "CPUExecutionProvider",
+        "warnings_suppressed": True
     }
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     print(f"🚀 Starting AI Upashthiti API on port {port}")
-    print(f"🤖 Buffalo model status: {'✅ Loaded' if model else '❌ Not Available'}")
+    print(f"🤖 Buffalo model status: {'✅ Loaded (CPU)' if model else '❌ Not Available'}")
+    print(f"🔧 Execution Provider: CPUExecutionProvider")
     uvicorn.run(app, host="0.0.0.0", port=port)
