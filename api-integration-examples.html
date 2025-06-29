@@ -11,9 +11,16 @@
         .button:hover { background: #45a049; }
         .results { background: #e7f3ff; padding: 10px; margin: 10px 0; border-radius: 4px; }
         input[type="file"], input[type="text"] { margin: 5px; padding: 8px; }
+        .success { background: #4caf50; color: white; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
     </style>
 </head>
 <body>
+    <div class="success">
+        <h3>✅ API Connected Successfully!</h3>
+        <p>Connected to: <code>https://web-production-13b09.up.railway.app</code></p>
+        <p><a href="https://web-production-13b09.up.railway.app/docs" target="_blank" style="color: white;">📖 View API Documentation</a></p>
+    </div>
+
     <h1>🤖 AI Upashthiti API - Live Integration Examples</h1>
     
     <div class="example">
@@ -45,8 +52,8 @@
     </div>
 
     <script>
-        // 🔗 UPDATE THIS URL WITH YOUR RAILWAY DEPLOYMENT URL
-        const API_URL = 'https://your-app.railway.app';
+        // 🔗 Your Live Railway API URL
+        const API_URL = 'https://web-production-13b09.up.railway.app';
         
         // 📝 Register Student Function
         async function registerStudent() {
@@ -77,6 +84,7 @@
                     <h3>✅ Registration Successful!</h3>
                     <p><strong>Message:</strong> ${result.message}</p>
                     <p><strong>Faces Detected:</strong> ${result.faces_detected}</p>
+                    <p><strong>Model Used:</strong> ${result.model_used}</p>
                     ${result.student_id ? `<p><strong>Student ID:</strong> ${result.student_id}</p>` : ''}
                 `;
                 
@@ -116,6 +124,7 @@
                     <p><strong>Message:</strong> ${result.message}</p>
                     <p><strong>Total Faces Detected:</strong> ${result.total_faces_detected}</p>
                     <p><strong>Recognized Students:</strong> ${result.recognized_faces.length}</p>
+                    <p><strong>Model Used:</strong> ${result.model_used}</p>
                 `;
                 
                 if (result.recognized_faces.length > 0) {
@@ -222,27 +231,6 @@
             element.style.display = 'block';
             element.innerHTML = `<p style="color: red;">❌ Error: ${message}</p>`;
         }
-        
-        // Show API URL info
-        document.addEventListener('DOMContentLoaded', function() {
-            if (API_URL.includes('your-app')) {
-                document.body.insertAdjacentHTML('afterbegin', `
-                    <div style="background: #ffeb3b; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
-                        <h3>⚠️ Update Required</h3>
-                        <p>Please update the <code>API_URL</code> in this file with your actual Railway deployment URL.</p>
-                        <p>Current URL: <code>${API_URL}</code></p>
-                    </div>
-                `);
-            } else {
-                document.body.insertAdjacentHTML('afterbegin', `
-                    <div style="background: #4caf50; color: white; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
-                        <h3>✅ API Connected</h3>
-                        <p>Connected to: <code>${API_URL}</code></p>
-                        <p><a href="${API_URL}/docs" target="_blank" style="color: white;">📖 View API Documentation</a></p>
-                    </div>
-                `);
-            }
-        });
     </script>
 </body>
 </html>

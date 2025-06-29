@@ -2,11 +2,23 @@
 
 A comprehensive face recognition attendance system with web API and dashboard interface.
 
+## 🚀 **LIVE API DEPLOYMENT**
+
+**Your AI Upashthiti API is now live at:**
+```
+https://web-production-13b09.up.railway.app
+```
+
+**Interactive API Documentation:**
+```
+https://web-production-13b09.up.railway.app/docs
+```
+
 ## Features
 
 ### 🎯 Core Functionality
-- **Face Registration**: Register students with their photos
-- **Real-time Recognition**: Recognize faces from uploaded images
+- **Face Registration**: Register students with their photos using Buffalo model
+- **Real-time Recognition**: Recognize faces from uploaded images with 60% confidence threshold
 - **Attendance Tracking**: Automatic attendance logging with timestamps
 - **Student Management**: Add, view, and remove registered students
 
@@ -25,9 +37,8 @@ A comprehensive face recognition attendance system with web API and dashboard in
 ## Quick Start
 
 ### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- Webcam or image files for testing
+- Node.js 16+ (for web dashboard)
+- Your API is already live on Railway!
 
 ### Installation
 
@@ -37,26 +48,18 @@ A comprehensive face recognition attendance system with web API and dashboard in
    cd ai-upashthiti
    ```
 
-2. **Set up Python API**
-   ```bash
-   cd api
-   pip install -r requirements.txt
-   python main.py
-   ```
-   The API will start on `http://localhost:8000`
-
-3. **Set up Web Dashboard**
+2. **Set up Web Dashboard**
    ```bash
    npm install
    npm run dev
    ```
-   The dashboard will start on `http://localhost:3000`
+   The dashboard will start on `http://localhost:3000` and connect to your live API
 
 ## API Documentation
 
 ### Base URL
 ```
-http://localhost:8000
+https://web-production-13b09.up.railway.app
 ```
 
 ### Endpoints
@@ -117,7 +120,7 @@ const registerStudent = async (name, imageFile, studentId) => {
   formData.append('file', imageFile);
   if (studentId) formData.append('student_id', studentId);
   
-  const response = await fetch('http://localhost:8000/api/register', {
+  const response = await fetch('https://web-production-13b09.up.railway.app/api/register', {
     method: 'POST',
     body: formData
   });
@@ -130,7 +133,7 @@ const recognizeFaces = async (imageFile) => {
   const formData = new FormData();
   formData.append('file', imageFile);
   
-  const response = await fetch('http://localhost:8000/api/recognize', {
+  const response = await fetch('https://web-production-13b09.up.railway.app/api/recognize', {
     method: 'POST',
     body: formData
   });
@@ -145,7 +148,7 @@ import requests
 
 # Register student
 def register_student(name, image_path, student_id=None):
-    url = "http://localhost:8000/api/register"
+    url = "https://web-production-13b09.up.railway.app/api/register"
     
     with open(image_path, 'rb') as f:
         files = {'file': f}
@@ -159,7 +162,7 @@ def register_student(name, image_path, student_id=None):
 
 # Recognize faces
 def recognize_faces(image_path):
-    url = "http://localhost:8000/api/recognize"
+    url = "https://web-production-13b09.up.railway.app/api/recognize"
     
     with open(image_path, 'rb') as f:
         files = {'file': f}
@@ -168,84 +171,75 @@ def recognize_faces(image_path):
     return response.json()
 ```
 
-## Deployment
+### cURL Examples
+```bash
+# Register a student
+curl -X POST "https://web-production-13b09.up.railway.app/api/register" \
+  -F "name=John Doe" \
+  -F "file=@photo.jpg"
 
-### API Deployment (Python)
-1. **Using Docker**
-   ```dockerfile
-   FROM python:3.9-slim
-   WORKDIR /app
-   COPY api/requirements.txt .
-   RUN pip install -r requirements.txt
-   COPY api/ .
-   EXPOSE 8000
-   CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-   ```
+# Recognize faces
+curl -X POST "https://web-production-13b09.up.railway.app/api/recognize" \
+  -F "file=@group_photo.jpg"
 
-2. **Using Cloud Platforms**
-   - Deploy to Heroku, Railway, or DigitalOcean
-   - Set environment variables as needed
-   - Ensure sufficient memory for face recognition models
+# Get all students
+curl "https://web-production-13b09.up.railway.app/api/students"
 
-### Web Dashboard Deployment
-1. **Build for production**
-   ```bash
-   npm run build
-   ```
-
-2. **Deploy to Netlify/Vercel**
-   - Connect your repository
-   - Set build command: `npm run build`
-   - Set publish directory: `dist`
-   - Add environment variable: `VITE_API_URL=your-api-url`
+# Get attendance stats
+curl "https://web-production-13b09.up.railway.app/api/attendance/stats"
+```
 
 ## Configuration
 
 ### Environment Variables
-Create a `.env` file:
+Your project is now configured to use the live API:
 ```env
-VITE_API_URL=http://localhost:8000
-```
-
-For production:
-```env
-VITE_API_URL=https://your-api-domain.com
+VITE_API_URL=https://web-production-13b09.up.railway.app
 ```
 
 ## File Structure
 ```
 ai-upashthiti/
-├── api/                    # Python FastAPI backend
-│   ├── main.py            # Main API application
-│   └── requirements.txt   # Python dependencies
-├── src/                   # React frontend
+├── src/                   # React frontend (connects to live API)
 │   ├── components/        # React components
 │   ├── services/         # API service functions
 │   └── App.tsx           # Main application
-├── registered_faces/      # Student photos storage
-├── test_images/          # Test images
-├── embeddings_db.json    # Face embeddings database
-├── attendance.csv        # Attendance records
+├── api-integration-examples.html  # Live API examples
+├── .env                  # Environment configuration
 └── package.json          # Node.js dependencies
 ```
 
 ## Technical Details
 
 ### Face Recognition
-- **Model**: InsightFace Buffalo_L
+- **Model**: InsightFace Buffalo_L (deployed on Railway)
 - **Embedding Size**: 512 dimensions
 - **Similarity Threshold**: 0.6 (configurable)
 - **Detection**: RetinaFace for face detection
 
 ### Database
-- **Embeddings**: JSON file storage (easily replaceable with SQL/NoSQL)
+- **Embeddings**: JSON file storage on Railway
 - **Attendance**: CSV format with timestamps
-- **Scalable**: Can be migrated to PostgreSQL/MongoDB
+- **Persistent**: Data persists across deployments
 
 ### Security
-- **CORS**: Configurable origins
+- **CORS**: Enabled for all origins
 - **File Validation**: Image format validation
 - **Error Handling**: Comprehensive error responses
+
+## 🎉 Your API is Live!
+
+**Test your live API now:**
+
+1. **Open the integration examples:** `api-integration-examples.html`
+2. **View API documentation:** https://web-production-13b09.up.railway.app/docs
+3. **Test endpoints directly:** Use the examples above
+
+**Your face recognition system is now:**
+- ✅ **Live on the internet**
+- ✅ **Using Buffalo model for accurate recognition**
+- ✅ **Ready for integration by any website**
+- ✅ **Scalable and production-ready**
 
 ## Contributing
 
@@ -263,9 +257,12 @@ MIT License - see LICENSE file for details
 
 For issues and questions:
 1. Check the documentation
-2. Search existing issues
-3. Create a new issue with detailed information
+2. Test with the live API examples
+3. Search existing issues
+4. Create a new issue with detailed information
 
 ---
 
 **AI Upashthiti** - Making attendance tracking intelligent and effortless! 🚀
+
+**Live API:** https://web-production-13b09.up.railway.app
