@@ -12,7 +12,7 @@ cmds = [
 cmds = ['echo "Build phase complete"']
 
 [start]
-cmd = 'cd api && python main.py'
+cmd = 'python api/main.py'
 
 [variables]
 PYTHON_VERSION = "3.9"
