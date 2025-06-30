@@ -1,1 +1,0 @@
-web: cd api && python app.py
