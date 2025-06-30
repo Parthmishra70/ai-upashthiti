@@ -41,15 +41,22 @@ app.add_middleware(
 model = None
 try:
     import insightface
+    import os
     print("🔄 Loading InsightFace Buffalo model...")
+    
+    # Set model path from environment variable
+    model_path = os.getenv('INSIGHTFACE_MODEL_PATH', '/root/.insightface/models')
+    os.environ['INSIGHTFACE_HOME'] = os.path.dirname(model_path)
     
     # Force CPU-only execution for Railway compatibility
     model = insightface.app.FaceAnalysis(
         name='buffalo_l',
+        root=model_path,
         providers=['CPUExecutionProvider']  # Only use CPU
     )
     model.prepare(ctx_id=-1)  # Use CPU for Railway compatibility
-    print("✅ InsightFace Buffalo model loaded successfully on CPU")
+    print(f"✅ InsightFace Buffalo model loaded successfully from {model_path}")
+    print(f"📂 Model cache location: {os.getenv('INSIGHTFACE_HOME')}"
 except ImportError as e:
     print(f"❌ InsightFace not available: {e}")
     print("⚠️ Face recognition will not work without InsightFace")

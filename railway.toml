@@ -10,6 +10,7 @@ PORT = "8000"
 PYTHON_VERSION = "3.9"
 NIXPACKS_PYTHON_VERSION = "3.9"
 INSIGHTFACE_MODEL_PATH = "/root/.insightface/models"
+INSIGHTFACE_HOME = "/root/.insightface"
 INSIGHTFACE_PROVIDER = "CPUExecutionProvider"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3

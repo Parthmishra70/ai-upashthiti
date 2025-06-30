@@ -19,12 +19,23 @@ def install_insightface():
         ])
         print("✅ InsightFace installed successfully")
         
+        # Set model path
+        model_path = os.getenv('INSIGHTFACE_MODEL_PATH', '/root/.insightface/models')
+        os.environ['INSIGHTFACE_HOME'] = os.path.dirname(model_path)
+        os.makedirs(model_path, exist_ok=True)
+        
+        print(f"📂 Using model cache directory: {model_path}")
+        
         # Test import and model loading
         print("🔄 Testing InsightFace and Buffalo model...")
         import insightface
         
         # Initialize model to download Buffalo weights
-        model = insightface.app.FaceAnalysis(name='buffalo_l')
+        model = insightface.app.FaceAnalysis(
+            name='buffalo_l',
+            root=model_path,
+            providers=['CPUExecutionProvider']
+        )
         model.prepare(ctx_id=-1)  # CPU mode
         
         print("✅ Buffalo model loaded successfully!")
