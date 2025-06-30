@@ -56,7 +56,7 @@ try:
     )
     model.prepare(ctx_id=-1)  # Use CPU for Railway compatibility
     print(f"✅ InsightFace Buffalo model loaded successfully from {model_path}")
-    print(f"📂 Model cache location: {os.getenv('INSIGHTFACE_HOME')}"
+    print(f"📂 Model cache location: {os.getenv('INSIGHTFACE_HOME')}")
 except ImportError as e:
     print(f"❌ InsightFace not available: {e}")
     print("⚠️ Face recognition will not work without InsightFace")
