@@ -20,9 +20,9 @@ COPY api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Pre-download and cache Buffalo model
-RUN mkdir -p /root/.insightface/models/buffalo_l
-RUN curl -L https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip -o /root/.insightface/models/buffalo_l.zip
-RUN cd /root/.insightface/models && unzip buffalo_l.zip && rm buffalo_l.zip
+COPY api/install_insightface.py /tmp/install_insightface.py
+RUN python /tmp/install_insightface.py && \
+    rm /tmp/install_insightface.py
 
 # Copy API code
 COPY api/ .
