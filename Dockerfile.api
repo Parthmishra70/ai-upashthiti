@@ -19,9 +19,13 @@ RUN apt-get update && apt-get install -y \
 COPY api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Create persistent volume for model cache
+VOLUME /root/.insightface
+
 # Pre-download and cache Buffalo model
 COPY api/install_insightface.py /tmp/install_insightface.py
-RUN python /tmp/install_insightface.py && \
+RUN mkdir -p /root/.insightface && \
+    python /tmp/install_insightface.py && \
     rm /tmp/install_insightface.py
 
 # Copy API code
